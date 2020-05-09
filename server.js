@@ -8,42 +8,65 @@ const token =
 
 let nextId = 7;
 
+let username = "Dave";
+
+let users = [
+  {
+  id: 7,
+  name: 'Barney Stinson',
+  age: 32,
+  email: 'barney@friends.com'
+},
+  {
+  id: 8,
+  name: 'Ted Mosby',
+  age: 30,
+  email: 'Ted@friends.com'
+},
+  {
+  id: 1,
+  name: 'Robin Scherbatzky',
+  age: 30,
+  email: 'robin@friends.com'
+},
+]
+
 let friends = [
   {
     id: 1,
-    name: 'Rachel Green',
+    name: 'Sonia Dave',
     age: 30,
-    email: 'rachel@friends.com'
+    email: 'sonia@friends.com'
   },
   {
     id: 2,
-    name: 'Joey Tribbiani',
+    name: 'Rahul Shah',
     age: 34,
-    email: 'joey@friends.com'
+    email: 'rahul@friends.com'
   },
   {
     id: 3,
-    name: 'Chandler Bing',
+    name: 'Joe Backman',
     age: 32,
-    email: 'chandler@friends.com'
+    email: 'joe@friends.com'
   },
   {
     id: 4,
-    name: 'Ross Geller',
+    name: 'Darwin Cruz',
     age: 32,
-    email: 'ross@friends.com'
+    email: 'darwin@friends.com'
   },
   {
     id: 5,
-    name: 'Monica Bing',
+    name: 'Krunal Bhatt',
     age: 31,
-    email: 'monica@friends.com'
+    email: 'krunal@friends.com'
   },
   {
     id: 6,
-    name: 'Phoebe Buffay-Hannigan',
+    name: 'Monica Tyler',
     age: 30,
-    email: 'phoebe@friends.com'
+    email: 'monica@friends.com'
   }
 ];
 
@@ -61,10 +84,14 @@ function authenticator(req, res, next) {
 }
 
 app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username === 'Lambda School' && password === 'i<3Lambd4') {
+  //const { username, password } = req.body;
+  //if (username === 'Lambda School' && password === 'i<3Lambd4') {
+ // if (username === 'Dave' && password === '123') {
+  const { password } = req.body;
+  if (req.body.username === username  && password === '123') {
     req.loggedIn = true;
     res.status(200).json({
+      username,
       payload: token
     });
   } else {
@@ -80,6 +107,12 @@ app.get('/api/friends', authenticator, (req, res) => {
   }, 1000);
 });
 
+app.get('/api/users/:searchTerm', authenticator, (req, res) => {
+  const searchTerm = req.params.searchTerm !== "none" ?  req.params.searchTerm.toLowerCase() : ""
+  const searchedUsers = users.filter((user => user.name.toLowerCase().includes(searchTerm) ))
+  res.send(searchedUsers);
+});
+
 app.get('/api/friends/:id', authenticator, (req, res) => {
   const friend = friends.find(f => f.id == req.params.id);
 
@@ -89,6 +122,23 @@ app.get('/api/friends/:id', authenticator, (req, res) => {
     res.status(404).send({ msg: 'Friend not found' });
   }
 });
+
+app.get('/api/friends', authenticator, (req, res) => {
+  setTimeout(() => {
+    res.send(friends);
+  }, 1000);
+});
+
+app.get('/api/me', authenticator, (req, res) => {
+   // res.status(200).json({username: 'Dave'});
+   res.status(200).json({username});
+});
+
+app.put('/api/me', authenticator, (req, res) => {
+  username = req.body.username;
+  res.status(200).json({ username })
+})
+
 
 app.post('/api/friends', authenticator, (req, res) => {
   const friend = { id: getNextId(), ...req.body };
